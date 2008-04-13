@@ -19,7 +19,7 @@ public class MultiplayerMazeController implements MazeListener, ClientListener {
 	@Override
 	public void clientAdded(Client client) {
 		try {
-			if(client == ownClient)
+			if(client == ownClient || client instanceof RobotClient)
 			{
 				System.out.println("Sending client added");
 				queue.broadcast(NetworkMessage.createAddedMessage(client));
