@@ -39,7 +39,9 @@ import java.io.Serializable;
 
 public class Mazewar extends JFrame {
 
-        /**
+        private static boolean robot;
+
+		/**
          * The default width of the {@link Maze}.
          */
         private final int mazeWidth = 20;
@@ -163,7 +165,13 @@ public class Mazewar extends JFrame {
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
 //                {
-//                        maze.addClient(new RobotClient("Norby"));
+                if(robot)
+                {
+                	RobotClient robotClient = new RobotClient("Norby");
+                	robotClient.addClientListener(controller);
+					maze.addClient(robotClient);
+                }
+//                          
 //                        maze.addClient(new RobotClient("Robbie"));
 //                        maze.addClient(new RobotClient("Clango"));
 //                        maze.addClient(new RobotClient("Marvin"));
@@ -239,6 +247,8 @@ public class Mazewar extends JFrame {
                 /* Create the GUI */
         	if(args.length > 2)
         	{
+        		if(args.length == 5)
+        			Mazewar.robot = true;
         		new Mazewar(Integer.parseInt(args[0]), Integer.parseInt(args[1]), args[2], Integer.parseInt(args[3]));
         	}
         	else
