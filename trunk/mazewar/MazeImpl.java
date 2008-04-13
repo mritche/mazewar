@@ -75,7 +75,6 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 
                 // Build the maze starting at the corner
                 buildMaze(new Point(0,0));
-
                 thread.start();
         }
        
@@ -196,11 +195,12 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
         public synchronized void addClient(Client client) {
                 assert(client != null);
                 // Pick a random starting point, and check to see if it is already occupied
-                Point point = new Point(randomGen.nextInt(maxX),randomGen.nextInt(maxY));
+                Random rand = new Random();
+				Point point = new Point(rand.nextInt(maxX),rand.nextInt(maxY));
                 CellImpl cell = getCellImpl(point);
                 // Repeat until we find an empty cell
                 while(cell.getContents() != null) {
-                        point = new Point(randomGen.nextInt(maxX),randomGen.nextInt(maxY));
+                        point = new Point(rand.nextInt(maxX),rand.nextInt(maxY));
                         cell = getCellImpl(point);
                 } 
                 addClient(client, point);
@@ -423,18 +423,23 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
         private synchronized void addClient(Client client, Point point) {
                 assert(client != null);
                 assert(checkBounds(point));
-                CellImpl cell = getCellImpl(point);
                 Direction d = Direction.random();
-                while(cell.isWall(d)) {
-                  d = Direction.random();
-                }
-                cell.setContents(client);
-                clientMap.put(client, new DirectedPoint(point, d));
-                client.registerMaze(this);
-                client.addClientListener(this);
-                update();
-                notifyClientAdd(client);
+                CellImpl cell = getCellImpl(point);
+    			while(cell.isWall(d)) {
+    			  d = Direction.random();
+    			}
+                addClient(client, point, d);
         }
+
+		public void addClient(Client client, Point point, Direction d) {
+			CellImpl cell = getCellImpl(point);
+			cell.setContents(client);
+			clientMap.put(client, new DirectedPoint(point, d));
+			client.registerMaze(this);
+			client.addClientListener(this);
+			update();
+			notifyClientAdd(client);
+		}
         
         /**
          * Internal helper for handling the death of a {@link Client}.
@@ -541,7 +546,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
         /**
          * The random number generator used by the {@link Maze}.
          */
-        private final Random randomGen;
+        private Random randomGen;
 
         /**
          * The maximum X coordinate of the {@link Maze}.

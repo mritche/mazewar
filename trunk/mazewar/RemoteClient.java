@@ -33,6 +33,20 @@ public class RemoteClient extends Client {
                 super(name);
         }
 
+		public void fireEvent(ClientEvent event) {
+			if(event == ClientEvent.fire)
+				fire();
+			else if(event == ClientEvent.moveBackward)
+				backup();
+			else if(event == ClientEvent.moveForward)
+				forward();
+			else if(event == ClientEvent.turnLeft)
+				turnLeft();
+			else if(event == ClientEvent.turnRight)
+				turnRight();
+			
+		}
+
         /**
          * May want to fill in code here.
          */ 

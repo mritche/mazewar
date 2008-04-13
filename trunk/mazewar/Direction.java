@@ -17,6 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
   
+import java.io.Serializable;
 import java.util.Random;
 
 /**
@@ -25,32 +26,32 @@ import java.util.Random;
  * @version $Id: Direction.java 339 2004-01-23 20:06:22Z geoffw $
  */
 
-public class Direction {
+public class Direction implements Serializable{
         
         /* Internals ******************************************************/
         
         /**
          * Create a random number generator to produce random directions.
          */
-        private static Random randomGen = new Random();
+        private static Random randomGen = new Random(0xdeadbeef);
         
         /** 
          * Internal representation of directions
          */
-        private static final int NORTH  = 0;
-        private static final int EAST  = 1;
-        private static final int SOUTH = 2;
-        private static final int WEST  = 3;
+        public static final int NORTH  = 0;
+        public static final int EAST  = 1;
+        public static final int SOUTH = 2;
+        public static final int WEST  = 3;
         
         /**
          * The internal representation
          */
-        private final int direction;
+        public final int direction;
    
         /** 
          * Create a new direction from an internal representation
          */
-        private Direction(int direction) {
+        public Direction(int direction) {
                 assert((direction >= 0) && (direction < 4));
                 this.direction = direction;
         }
@@ -183,4 +184,19 @@ public class Direction {
                 /* Impossible */
                 return null;
         }
+
+		public static Direction convert(Direction orientation) {
+			switch(orientation.direction) {
+            case NORTH:
+                    return North;
+            case EAST:
+                    return East;
+            case SOUTH:
+                    return South;
+            case WEST:
+                    return West;
+			}
+			/* Impossible */
+			return null;
+		}
 }
