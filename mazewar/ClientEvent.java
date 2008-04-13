@@ -1,3 +1,5 @@
+import java.io.Serializable;
+
 /*
 Copyright (C) 2004 Geoffrey Alan Washburn
     
@@ -23,7 +25,7 @@ USA.
  * @version $Id: ClientEvent.java 359 2004-01-31 20:14:31Z geoffw $
  */
 
-public class ClientEvent {
+public class ClientEvent implements Serializable{
         /* Internals ******************************************************/
         
         /**
@@ -46,6 +48,26 @@ public class ClientEvent {
         private ClientEvent(int event) {
                 assert((event >= 0) && (event <= 4));
                 this.event = event;
+        }
+        
+        public static ClientEvent convert(ClientEvent e)
+        {
+        	switch(e.event)
+        	{
+        	case MOVE_FORWARD:
+        		return moveForward;
+        	case MOVE_BACKWARD:
+        		return moveBackward;
+        	case TURN_LEFT:
+        		return turnLeft;
+        	case TURN_RIGHT:
+        		return turnRight;
+        	case FIRE:
+        		return fire;
+    		default:
+    			return null;
+        		
+        	}
         }
 
         /* Public data ****************************************************/

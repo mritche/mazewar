@@ -26,6 +26,8 @@ import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
+
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -118,8 +120,14 @@ public class Mazewar extends JFrame {
        
         /** 
          * The place where all the pieces are put together. 
+         * @param listenPort TODO
+         * @param numPlayers TODO
+         * @param joinHost TODO
+         * @param joinPort TODO
+         * @throws InterruptedException 
+         * @throws IOException 
          */
-        public Mazewar() {
+        public Mazewar(int listenPort, int numPlayers, String joinHost, int joinPort) throws InterruptedException, IOException {
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
                 
@@ -141,25 +149,29 @@ public class Mazewar extends JFrame {
                 
                 // You may want to put your network initialization code somewhere in
                 // here.
-                
+                                
                 // Create the GUIClient and connect it to the KeyListener queue
                 guiClient = new GUIClient(name);
+                MulticastQueue queue = new MulticastQueue(listenPort, numPlayers, joinHost, joinPort, guiClient);
+                MultiplayerMazeController controller = new MultiplayerMazeController(guiClient, queue, (MazeImpl)maze);
+                queue.setController(controller);
+                queue.startMulticast();
+                maze.addMazeListener(controller);
                 maze.addClient(guiClient);
                 this.addKeyListener(guiClient);
                 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
-                {
-                        maze.addClient(new RobotClient("Norby"));
-                        maze.addClient(new RobotClient("Robbie"));
-                        maze.addClient(new RobotClient("Clango"));
-                        maze.addClient(new RobotClient("Marvin"));
-                }
+//                {
+//                        maze.addClient(new RobotClient("Norby"));
+//                        maze.addClient(new RobotClient("Robbie"));
+//                        maze.addClient(new RobotClient("Clango"));
+//                        maze.addClient(new RobotClient("Marvin"));
+//                }
 
                 
                 // Create the panel that will display the maze.
                 overheadPanel = new OverheadMazePanel(maze, guiClient);
-                assert(overheadPanel != null);
                 maze.addMazeListener(overheadPanel);
                 
                 // Don't allow editing the console from the GUI
@@ -169,12 +181,10 @@ public class Mazewar extends JFrame {
                
                 // Allow the console to scroll by putting it in a scrollpane
                 JScrollPane consoleScrollPane = new JScrollPane(console);
-                assert(consoleScrollPane != null);
                 consoleScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Console"));
                 
                 // Create the score table
                 scoreTable = new JTable(scoreModel);
-                assert(scoreTable != null);
                 scoreTable.setFocusable(false);
                 scoreTable.setRowSelectionAllowed(false);
 
@@ -220,10 +230,21 @@ public class Mazewar extends JFrame {
         /**
          * Entry point for the game.  
          * @param args Command-line arguments.
+         * @throws InterruptedException 
+         * @throws NumberFormatException 
+         * @throws IOException 
          */
-        public static void main(String args[]) {
+        public static void main(String args[]) throws NumberFormatException, InterruptedException, IOException {
 
                 /* Create the GUI */
-                new Mazewar();
+        	if(args.length > 2)
+        	{
+        		new Mazewar(Integer.parseInt(args[0]), Integer.parseInt(args[1]), args[2], Integer.parseInt(args[3]));
+        	}
+        	else
+        	{
+        		new Mazewar(Integer.parseInt(args[0]), Integer.parseInt(args[1]), null, 0);
+        	}
+                		
         }
 }

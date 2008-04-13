@@ -221,7 +221,7 @@ public abstract class Client {
          * Send a the specified {@link ClientEvent} to all registered listeners
          * @param ce Event to be sent.
          */
-        private void notifyListeners(ClientEvent ce) {
+        protected void notifyListeners(ClientEvent ce) {
                 assert(ce != null);
                 Iterator i = listenerSet.iterator();
                 while (i.hasNext()) {
