@@ -55,4 +55,6 @@ public interface MazeListener {
          */
         void clientRemoved(Client client);
         
+        void clientScoreUpdated(Client client, int score);
+        
 }

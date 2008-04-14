@@ -868,4 +868,16 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 assert(o2 instanceof CellImpl);
                 return (CellImpl)o2;
         }
+
+		public void addClient(RemoteClient client, Point point,
+				Direction orientation, int score) {
+			addClient(client, point, orientation);
+            Iterator i = listenerSet.iterator();
+            while (i.hasNext()) {
+                    Object o = i.next();
+                    assert(o instanceof MazeListener);
+                    MazeListener ml = (MazeListener)o;
+                    ml.clientScoreUpdated(client, score);
+            } 
+		}
 }

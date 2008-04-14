@@ -286,5 +286,11 @@ public class OverheadMazePanel extends JPanel implements MazeListener {
                 }
 
         }
+
+		@Override
+		public void clientScoreUpdated(Client client, int score) {
+			// TODO Auto-generated method stub
+			
+		}
         
 }

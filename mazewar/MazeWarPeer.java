@@ -9,7 +9,7 @@ import Backend.INetworkPeer;
 import Backend.INetworkServer;
 
 
-public class MazeWarPeer implements INetworkPeer, KeyListener {
+public class MazeWarPeer implements INetworkPeer, KeyListener, MazeListener {
 
 	
 	private Client ownClient;
@@ -18,6 +18,7 @@ public class MazeWarPeer implements INetworkPeer, KeyListener {
 	private boolean started;
 	private INetworkServer server;
 	private Map<String, Client> clients = new HashMap<String, Client>();
+	private int score = 0;
 	
 	public MazeWarPeer(Client client, MazeImpl maze, boolean firstPeer) {
 		ownClient = client;
@@ -40,7 +41,7 @@ public class MazeWarPeer implements INetworkPeer, KeyListener {
 
 	@Override
 	public Object getCurrentState() {		
-			return NetworkMessage.createStateMessage(ownClient);		
+			return NetworkMessage.createStateMessage(ownClient, score);		
 	}
 
 	@Override
@@ -107,7 +108,7 @@ public class MazeWarPeer implements INetworkPeer, KeyListener {
 		}
 		System.out.println("Placing myself");
 		maze.addClient(ownClient);
-		return NetworkMessage.createStateMessage(ownClient);
+		return NetworkMessage.createStateMessage(ownClient, score);
 	}
 
 	private void addRemoteClient(Object peerState) {
@@ -115,7 +116,7 @@ public class MazeWarPeer implements INetworkPeer, KeyListener {
 		state.orientation = Direction.convert(state.orientation);
 		RemoteClient client = new RemoteClient(state.name);
 		clients.put(client.getName(), client);
-		maze.addClient(client, state.point, state.orientation);
+		maze.addClient(client, state.point, state.orientation, state.score);
 	}
 
 	public synchronized void waitForJoin() throws InterruptedException {
@@ -171,6 +172,52 @@ public class MazeWarPeer implements INetworkPeer, KeyListener {
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clientAdded(Client client) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clientFired(Client client) {
+		if(client == ownClient)
+		{
+			score -= 1;
+		}
+		
+	}
+
+	@Override
+	public void clientKilled(Client source, Client target) {
+		if(source == ownClient)
+		{
+			score += 11;
+		}
+		if(target == ownClient)
+		{
+			score -= 5;
+		}
+		
+	}
+
+	@Override
+	public void clientRemoved(Client client) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mazeUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clientScoreUpdated(Client client, int score) {
 		// TODO Auto-generated method stub
 		
 	}

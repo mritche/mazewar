@@ -244,4 +244,14 @@ public class ScoreTableModel implements TableModel, MazeListener {
                         tml.tableChanged(new TableModelEvent(this));
                 } 
         }
+
+		@Override
+		public void clientScoreUpdated(Client client, int score) {
+			ScoreWrapper s = (ScoreWrapper)clientMap.get(client);
+			scoreSet.remove(s);
+			s.score = score;
+			scoreSet.add(s);
+			notifyListeners();
+			
+		}
 }
