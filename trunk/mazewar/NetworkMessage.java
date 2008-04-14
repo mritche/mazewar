@@ -9,12 +9,14 @@ public class NetworkMessage implements Serializable{
 	public Point point;
 	public Direction orientation;
 	public ClientEvent event;
+	public int score;
 	
 	
-	public static NetworkMessage createStateMessage(Client c)
+	public static NetworkMessage createStateMessage(Client c, int score)
 	{
 		NetworkMessage m = new NetworkMessage(c);
 		m.type = MessageTypes.ClientState;
+		m.score = score;
 		return m;
 	}	
 

@@ -172,6 +172,7 @@ public class Mazewar extends JFrame {
                 	peer =  new MazeWarPeer(guiClient, (MazeImpl)maze, false);
                 	server = new MazewarServer(listenHost, listenPort, peer, joinHost, joinPort);
                 }
+                maze.addMazeListener(peer);
                 peer.waitForJoin();
                 //maze.addClient(guiClient);
                 //this.addKeyListener(guiClient);
