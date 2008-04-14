@@ -2,7 +2,7 @@ import java.io.Serializable;
 
 
 public class NetworkMessage implements Serializable{
-	public enum MessageTypes {ClientAdded, ClientEvent};
+	public enum MessageTypes {ClientAdded, ClientEvent, ClientState};
 	
 	public MessageTypes type;
 	public String name;
@@ -11,10 +11,10 @@ public class NetworkMessage implements Serializable{
 	public ClientEvent event;
 	
 	
-	public static NetworkMessage createAddedMessage(Client c)
+	public static NetworkMessage createStateMessage(Client c)
 	{
 		NetworkMessage m = new NetworkMessage(c);
-		m.type = MessageTypes.ClientAdded;
+		m.type = MessageTypes.ClientState;
 		return m;
 	}	
 

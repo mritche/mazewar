@@ -22,7 +22,7 @@ public class MultiplayerMazeController implements MazeListener, ClientListener {
 			if(client == ownClient || client instanceof RobotClient)
 			{
 				System.out.println("Sending client added");
-				queue.broadcast(NetworkMessage.createAddedMessage(client));
+				queue.broadcast(NetworkMessage.createStateMessage(client));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
