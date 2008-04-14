@@ -17,18 +17,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
   
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JOptionPane;
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-import javax.swing.BorderFactory;
-
+import java.awt.GridBagLayout;
 import java.io.IOException;
-import java.io.Serializable;
+
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+
+import Backend.MazewarServer;
 
 /**
  * The entry point and glue code for the game.  It also contains some helpful
@@ -128,8 +128,9 @@ public class Mazewar extends JFrame {
          * @param joinPort TODO
          * @throws InterruptedException 
          * @throws IOException 
+         * @throws ClassNotFoundException 
          */
-        public Mazewar(int listenPort, int numPlayers, String joinHost, int joinPort) throws InterruptedException, IOException {
+        public Mazewar(int listenPort, int numPlayers, String joinHost, int joinPort) throws InterruptedException, IOException, ClassNotFoundException {
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
                 
@@ -154,23 +155,36 @@ public class Mazewar extends JFrame {
                                 
                 // Create the GUIClient and connect it to the KeyListener queue
                 guiClient = new GUIClient(name);
-                MulticastQueue queue = new MulticastQueue(listenPort, numPlayers, joinHost, joinPort, guiClient);
-                MultiplayerMazeController controller = new MultiplayerMazeController(guiClient, queue, (MazeImpl)maze);
-                queue.setController(controller);
-                queue.startMulticast();
-                maze.addMazeListener(controller);
-                maze.addClient(guiClient);
+                //MulticastQueue queue = new MulticastQueue(listenPort, numPlayers, joinHost, joinPort, guiClient);
+                //MultiplayerMazeController controller = new MultiplayerMazeController(guiClient, queue, (MazeImpl)maze);
+                //queue.setController(controller);
+                //queue.startMulticast();
+                //maze.addMazeListener(controller);
+                MazeWarPeer peer;
+                MazewarServer server;
+                if(joinHost == null)
+                {
+                	peer =  new MazeWarPeer(guiClient, (MazeImpl)maze, true);
+                	server = new MazewarServer(listenPort, peer);
+                }
+                else
+                {
+                	peer =  new MazeWarPeer(guiClient, (MazeImpl)maze, false);
+                	server = new MazewarServer(listenPort, peer, joinHost, joinPort);
+                }
+                peer.waitForJoin();
+                //maze.addClient(guiClient);
                 this.addKeyListener(guiClient);
                 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
 //                {
-                if(robot)
-                {
-                	RobotClient robotClient = new RobotClient("Norby");
-                	robotClient.addClientListener(controller);
-					maze.addClient(robotClient);
-                }
+//                if(robot)
+//                {
+//                	RobotClient robotClient = new RobotClient("Norby");
+//                	robotClient.addClientListener(controller);
+//					maze.addClient(robotClient);
+//                }
 //                          
 //                        maze.addClient(new RobotClient("Robbie"));
 //                        maze.addClient(new RobotClient("Clango"));
@@ -241,8 +255,9 @@ public class Mazewar extends JFrame {
          * @throws InterruptedException 
          * @throws NumberFormatException 
          * @throws IOException 
+         * @throws ClassNotFoundException 
          */
-        public static void main(String args[]) throws NumberFormatException, InterruptedException, IOException {
+        public static void main(String args[]) throws NumberFormatException, InterruptedException, IOException, ClassNotFoundException {
 
                 /* Create the GUI */
         	if(args.length > 2)
