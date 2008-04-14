@@ -130,7 +130,7 @@ public class Mazewar extends JFrame {
          * @throws IOException 
          * @throws ClassNotFoundException 
          */
-        public Mazewar(int listenPort, int numPlayers, String joinHost, int joinPort) throws InterruptedException, IOException, ClassNotFoundException {
+        public Mazewar(String listenHost, int listenPort, int numPlayers, String joinHost, int joinPort) throws InterruptedException, IOException, ClassNotFoundException {
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
                 
@@ -165,16 +165,17 @@ public class Mazewar extends JFrame {
                 if(joinHost == null)
                 {
                 	peer =  new MazeWarPeer(guiClient, (MazeImpl)maze, true);
-                	server = new MazewarServer(listenPort, peer);
+                	server = new MazewarServer(listenHost, listenPort, peer);
                 }
                 else
                 {
                 	peer =  new MazeWarPeer(guiClient, (MazeImpl)maze, false);
-                	server = new MazewarServer(listenPort, peer, joinHost, joinPort);
+                	server = new MazewarServer(listenHost, listenPort, peer, joinHost, joinPort);
                 }
                 peer.waitForJoin();
                 //maze.addClient(guiClient);
-                this.addKeyListener(guiClient);
+                //this.addKeyListener(guiClient);
+                this.addKeyListener(peer);
                 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
@@ -260,15 +261,13 @@ public class Mazewar extends JFrame {
         public static void main(String args[]) throws NumberFormatException, InterruptedException, IOException, ClassNotFoundException {
 
                 /* Create the GUI */
-        	if(args.length > 2)
+        	if(args.length > 3)
         	{
-        		if(args.length == 5)
-        			Mazewar.robot = true;
-        		new Mazewar(Integer.parseInt(args[0]), Integer.parseInt(args[1]), args[2], Integer.parseInt(args[3]));
+        		new Mazewar(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), args[3], Integer.parseInt(args[4]));
         	}
         	else
         	{
-        		new Mazewar(Integer.parseInt(args[0]), Integer.parseInt(args[1]), null, 0);
+        		new Mazewar(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), null, 0);
         	}
                 		
         }

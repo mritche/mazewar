@@ -30,10 +30,10 @@ public class Direction implements Serializable{
         
         /* Internals ******************************************************/
         
-        /**
-         * Create a random number generator to produce random directions.
-         */
-        private static Random randomGen = new Random(0xdeadbeef);
+//        /**
+//         * Create a random number generator to produce random directions.
+//         */
+//        private static Random randomGen = new Random(0xdeadbeef);
         
         /** 
          * Internal representation of directions
@@ -92,8 +92,10 @@ public class Direction implements Serializable{
          * Create a {@link Direction} randomly.
          * @return A random Cardinal {@link Direction}.
          */
-        public static Direction random() {
-                switch(randomGen.nextInt(4)) {
+        public static Direction random(Random randomGen) {
+                int nextInt = randomGen.nextInt(4);
+ //               System.out.printf("Got random direction: %d\n", nextInt);
+				switch(nextInt) {
                         case NORTH:
                                 return South;
                         case EAST:

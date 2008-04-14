@@ -1,34 +1,29 @@
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import Backend.INetworkPeer;
 import Backend.INetworkServer;
 
 
-public class MazeWarPeer implements INetworkPeer {
+public class MazeWarPeer implements INetworkPeer, KeyListener {
 
-	private static class ClientState implements Serializable
-	{
-		public ClientState(Client client) {
-			name = client.getName();
-			location = client.getPoint();
-			orientation = client.getOrientation();
-		}
-		public String name;
-		public Point location;
-		public Direction orientation;
-	}
 	
 	private Client ownClient;
 	private MazeImpl maze;
 	private boolean firstPeer;
 	private boolean started;
+	private INetworkServer server;
+	private Map<String, Client> clients = new HashMap<String, Client>();
 	
 	public MazeWarPeer(Client client, MazeImpl maze, boolean firstPeer) {
 		ownClient = client;
 		this.maze = maze;
 		this.firstPeer = firstPeer;
+		clients.put(client.getName(), client);
 		if(firstPeer)
 		{
 			maze.addClient(client);
@@ -39,24 +34,18 @@ public class MazeWarPeer implements INetworkPeer {
 	@Override
 	public void attachToServer(INetworkServer server) throws IOException,
 			ClassNotFoundException {
-		// TODO Auto-generated method stub
+		this.server = server;
 		
 	}
 
 	@Override
-	public Object getCurrentState() {
-		if(started)
-		{
-		return new ClientState(ownClient);
-		}
-		else
-		{
-			return "Jiberish";
-		}
+	public Object getCurrentState() {		
+			return NetworkMessage.createStateMessage(ownClient);		
 	}
 
 	@Override
 	public synchronized void onNetworkJoin() {
+		System.out.println("Joined the game");
 		this.notify();
 		
 	}
@@ -69,7 +58,31 @@ public class MazeWarPeer implements INetworkPeer {
 
 	@Override
 	public void onReceiveMessage(Object msg) {
-		// TODO Auto-generated method stub
+		System.out.println("Received new message");
+		NetworkMessage m = (NetworkMessage)msg;
+		m.event = ClientEvent.convert(m.event);
+		Client c = clients.get(m.name);
+		if(m.event == ClientEvent.fire)
+		{
+			c.fire();
+		}
+		else if(m.event == ClientEvent.moveBackward)
+		{
+			c.backup();
+		}
+		else if(m.event == ClientEvent.moveForward)
+		{
+			c.forward();
+		}
+		else if(m.event == ClientEvent.turnLeft)
+		{
+			c.turnLeft();
+		}
+		else if(m.event == ClientEvent.turnRight)
+		{
+			c.turnRight();
+		}
+		maze.clientUpdate(c, m.event);
 		
 	}
 
@@ -94,18 +107,71 @@ public class MazeWarPeer implements INetworkPeer {
 		}
 		System.out.println("Placing myself");
 		maze.addClient(ownClient);
-		return new ClientState(ownClient);
+		return NetworkMessage.createStateMessage(ownClient);
 	}
 
 	private void addRemoteClient(Object peerState) {
-		ClientState state = (ClientState)peerState;
+		NetworkMessage state = (NetworkMessage)peerState;
 		state.orientation = Direction.convert(state.orientation);
 		RemoteClient client = new RemoteClient(state.name);
-		maze.addClient(client, state.location, state.orientation);
+		clients.put(client.getName(), client);
+		maze.addClient(client, state.point, state.orientation);
 	}
 
 	public synchronized void waitForJoin() throws InterruptedException {
 		if(!firstPeer) this.wait();
+		
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+        // If the user pressed Q, invoke the cleanup code and quit. 
+		NetworkMessage m = null;
+        if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
+                Mazewar.quit();
+        // Up-arrow moves forward.
+        } else if(e.getKeyCode() == KeyEvent.VK_UP) {
+                m = NetworkMessage.createClientUpdate(ownClient, ClientEvent.moveForward);
+        // Down-arrow moves backward.
+        } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+            m = NetworkMessage.createClientUpdate(ownClient, ClientEvent.moveBackward);
+        // Left-arrow turns left.
+        } else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+            m = NetworkMessage.createClientUpdate(ownClient, ClientEvent.turnLeft);
+        // Right-arrow turns right.
+        } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            m = NetworkMessage.createClientUpdate(ownClient, ClientEvent.turnRight);
+        // Spacebar fires.
+        } else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+            m = NetworkMessage.createClientUpdate(ownClient, ClientEvent.fire);
+        }
+        if(m != null)
+        {
+        	System.out.println("Sending player action");
+        	try {
+				server.broadcastMessage(m);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				System.exit(1);
+			} catch (ClassNotFoundException e1) {
+				e1.printStackTrace();
+				System.exit(1);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+				System.exit(1);
+			}
+        }
+}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 

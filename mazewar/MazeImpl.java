@@ -423,10 +423,11 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
         private synchronized void addClient(Client client, Point point) {
                 assert(client != null);
                 assert(checkBounds(point));
-                Direction d = Direction.random();
+                Random r = new Random();
+                Direction d = Direction.random(r);
                 CellImpl cell = getCellImpl(point);
     			while(cell.isWall(d)) {
-    			  d = Direction.random();
+    			  d = Direction.random(r);
     			}
                 addClient(client, point, d);
         }
@@ -436,7 +437,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 			cell.setContents(client);
 			clientMap.put(client, new DirectedPoint(point, d));
 			client.registerMaze(this);
-			client.addClientListener(this);
+			//client.addClientListener(this);
 			update();
 			notifyClientAdd(client);
 		}
@@ -464,9 +465,9 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                         point = new Point(randomGen.nextInt(maxX),randomGen.nextInt(maxY));
                         cell = getCellImpl(point);
                 }
-                Direction d = Direction.random();
+                Direction d = Direction.random(randomGen);
                 while(cell.isWall(d)) {
-                        d = Direction.random();
+                        d = Direction.random(randomGen);
                 }
                 cell.setContents(target);
                 clientMap.put(target, new DirectedPoint(point, d));
